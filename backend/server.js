@@ -146,7 +146,6 @@ const startServer = async () => {
         `);
         console.log('Table verified');
         connection.release();
-
         app.listen(PORT, () => {
             console.log(`Server UP: http://localhost:${PORT}`);
         });
@@ -158,4 +157,8 @@ const startServer = async () => {
     }
 };
 
-startServer();
+if (require.main === module) {
+    startServer();
+}
+
+module.exports = app;
