@@ -18,7 +18,18 @@ app.use(cors({
 }));
 
 
-let pool; // This declaration will be moved inside startServer or handled by the startServer's pool initialization.
+let pool = mysql.createPool(process.env.DB_URI);
+
+const ensureDb = async (req, res, next) => {
+    try {
+        if (!pool) pool = mysql.createPool(process.env.DB_URI);
+        next();
+    } catch (err) {
+        res.status(500).json({ message: 'Database connection error', error: err.message });
+    }
+};
+
+app.use(ensureDb);
 
 // Middleware to verify JWT
 const authenticate = (req, res, next) => {
@@ -127,9 +138,6 @@ const startServer = async () => {
     try {
         console.log('--- Server Start Process ---');
         console.log('DB_URI length:', process.env.DB_URI?.length || 0);
-
-        pool = mysql.createPool(process.env.DB_URI);
-        console.log('Pool created, testing connection...');
 
         const connection = await pool.getConnection();
         console.log('DB Connected!');
