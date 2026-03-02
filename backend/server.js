@@ -31,6 +31,16 @@ const ensureDb = async (req, res, next) => {
 
 app.use(ensureDb);
 
+// Vercel path normalization: strip /api from the start of the path
+app.use((req, res, next) => {
+    if (req.url.startsWith('/api')) {
+        req.url = req.url.slice(4);
+    }
+    next();
+});
+
+app.get('/health', (req, res) => res.json({ status: 'ok', db: !!pool }));
+
 // Middleware to verify JWT
 const authenticate = (req, res, next) => {
     const token = req.cookies.token;
